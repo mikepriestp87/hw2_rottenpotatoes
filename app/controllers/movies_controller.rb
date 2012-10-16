@@ -7,7 +7,19 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.all
+    @sort_by = params[:sort]
+    #cool check if its nil
+    if !@sort_by.nil?
+      begin
+        #sort is depricated
+        @movies = Movie.order("#{@sort_by} ASC").all
+      rescue ActiveRecord::StatementInvalid
+        flash[:warning] = "Movies can't be sorted by #{@sort_by}."
+        @movies = Movie.all
+      end
+    else
+      @movies = Movie.all
+    end
   end
 
   def new
