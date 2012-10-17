@@ -7,18 +7,32 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @sort_by = params[:sort]
-    #cool check if its nil
-    if !@sort_by.nil?
+    @sort = params[:sort]
+    @ratings = params[:ratings]
+    
+    #set local var with choice or all
+    if @ratings.nil?
+      chosen_ratings = Movie.ratings
+    else
+      chosen_ratings = @ratings.keys
+    end
+
+    #loop all ratings and set users opted
+    @all_ratings = Hash.new
+    Movie.ratings.each do |rating| 
+         @all_ratings[rating] = chosen_ratings.include?(rating)
+    end
+
+    if !@sort.nil?
       begin
-        #sort is depricated
-        @movies = Movie.order("#{@sort_by} ASC").all
+        #use find_all_by local ratings
+        @movies = Movie.order("#{@sort} ASC").find_all_by_rating(chosen_ratings)
       rescue ActiveRecord::StatementInvalid
-        flash[:warning] = "Movies can't be sorted by #{@sort_by}."
-        @movies = Movie.all
+        flash[:warning] = "Movies can't be sorted by #{@sort}."
+        @movies = Movie.find_all_by_rating(chosen_ratings)
       end
     else
-      @movies = Movie.all
+      @movies = Movie.find_all_by_rating(chosen_ratings)
     end
   end
 
