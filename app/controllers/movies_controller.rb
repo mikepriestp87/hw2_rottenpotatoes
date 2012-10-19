@@ -6,17 +6,35 @@ class MoviesController < ApplicationController
     # will render app/views/movies/show.<extension> by default
   end
 
+   def hash_to_querystring(hash)
+    hash.keys.inject('') do |query_string, key|
+      query_string << '&' unless key == hash.keys.first
+      query_string << "ratings[#{URI.encode(key.to_s)}]=#{URI.encode(hash[key])}"
+    end
+  end
+
   def index
     @sort = params[:sort]
     @ratings = params[:ratings]
-    
+
     #set local var with choice or all
     if @ratings.nil?
+      
+      if !session[:ratings].nil?
+        #redirect for session
+        redirect_to request.fullpath + "?" + hash_to_querystring(session[:ratings])
+       
+      end
+      
       chosen_ratings = Movie.ratings
+      
     else
       chosen_ratings = @ratings.keys
-    end
+      session[:ratings] = @ratings
 
+    end
+    
+   
     #loop all ratings and set users opted
     @all_ratings = Hash.new
     Movie.ratings.each do |rating| 
