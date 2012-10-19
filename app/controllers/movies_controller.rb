@@ -16,20 +16,14 @@ class MoviesController < ApplicationController
   def index
     @sort = params[:sort]
     @ratings = params[:ratings]
-    @sort = params[:sort]
-
-    #set var for sort
-    if !@sort.nil?
-        session[:sort] = @sort
-    end 
-
 
     #set local var with choice or all
     if @ratings.nil?
       
       if !session[:ratings].nil?
         #redirect for session
-        redirect_to request.fullpath + "?" + hash_to_querystring(session[:ratings]) + "&sort=" + session[:sort]
+        #session.destroy
+       redirect_to request.fullpath + "?" + hash_to_querystring(session[:ratings])
        
       end
       
@@ -38,8 +32,6 @@ class MoviesController < ApplicationController
     else
       chosen_ratings = @ratings.keys
       session[:ratings] = @ratings
-      
-      
 
     end
     
